@@ -7,6 +7,7 @@ package io.flutter.plugins.webviewflutter;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.hardware.display.DisplayManager;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Message;
@@ -16,6 +17,7 @@ import android.webkit.WebResourceRequest;
 import android.webkit.WebStorage;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.webkit.ValueCallback;
 import androidx.annotation.NonNull;
 import io.flutter.plugin.common.BinaryMessenger;
 import io.flutter.plugin.common.MethodCall;
@@ -70,6 +72,20 @@ public class FlutterWebView implements PlatformView, MethodCallHandler {
       transport.setWebView(newWebView);
       resultMsg.sendToTarget();
 
+      return true;
+    }
+
+    @Override
+    public boolean onShowFileChooser(
+        WebView webView,
+        ValueCallback<Uri[]> filePathCallback,
+        FileChooserParams fileChooserParams) {
+      final Context context = webView.getContext();
+      final boolean allowMultipleFiles =
+          fileChooserParams.getMode() == FileChooserParams.MODE_OPEN_MULTIPLE;
+      new FileChooserLauncher(
+              context, allowMultipleFiles, filePathCallback, fileChooserParams.getAcceptTypes())
+          .start();
       return true;
     }
 
